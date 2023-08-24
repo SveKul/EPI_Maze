@@ -1,3 +1,17 @@
+"""
+Suchstrategie vs Suchstrategie Player = Tiefensuche Monster = Breitensuche
+Step 1: Der Spieler bekommt Hilfe durch die Darstellung des kürzesten Weges basierend auf der Tiefensuche
+Step 2: Das Monster bewegt sich Random
+Step 3: Bewegt sich der Spieler hört das Monster den Spieler und führt eine Breitensuche aus und geht einen Schritt
+Step 4: Das Monster lernt zu sehen, ist ein grader, ununterbrochener Pfad vorhanden, schlägt das Monster den kürzesten Weg ein um den Spieler zu kriegen
+Step 5: Der Spieler kann sich verstecken so dass das Monster ihn nicht mehr sehen kann.
+Step 5: Es gibt Level
+Step 6: Pro Level kann sich das Monster ein Feld weiterbewegen
+
+
+
+"""
+
 import random
 import pygame
 import time
