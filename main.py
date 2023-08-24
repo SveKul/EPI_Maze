@@ -49,6 +49,7 @@ exit_col = 0
 
 # Funktion zum Generieren des Labyrinths
 def generate_maze(maze_width, maze_height):
+    global maze
     # Maze mit # befüllen # = Wände
     maze = [['#' for _ in range(maze_width)] for _ in range(maze_height)]
 
@@ -80,6 +81,9 @@ def generate_maze(maze_width, maze_height):
                        random.randint(0, maze_width - 1), False)
     generate_maze_path(maze, maze_height, maze_width, random.randint(0, maze_height - 1),
                        random.randint(0, maze_width - 1), False)
+
+
+
 
     return maze
 
