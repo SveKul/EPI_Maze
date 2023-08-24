@@ -32,26 +32,56 @@ def generate_maze(width, height):
     maze = [['#' for _ in range(width)] for _ in range(height)]
     for row in range(1, height - 1):
         for col in range(1, width - 1):
-            if random.random() < 0.7:
+            if random.random() < 0.9:
                 maze[row][col] = ' '
     return maze
+
+
+# Funktion zum Anzeigen von Text im Spiel
+def display_message(messages):
+    screen.fill(BLACK)  # Lösche den vorherigen Frame
+
+    font = pygame.font.Font(None, 36)
+    text_color = (255, 255, 255)
+    line_spacing = font.get_linesize()
+    text_position = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
+
+    y = text_position[1]
+    for message in messages:
+        text_surface = font.render(message, True, text_color)
+        screen.blit(text_surface, (text_position[0], y))
+        y += line_spacing
+    pygame.display.flip()
+
+
+exit_messages = [
+    "Ausgang gefunden!",
+    "Du bewegst dich tiefer ins Labyrinth.",
+    "Zum Fortsetzen drücke bitte die Leertaste."
+]
 
 
 def search_exit():
     """
     Anstoßen der Suche nach dem Ausgang und Feedback für den Player
     """
-    found_exit = depth_first_search(maze, player_row, player_col)
+    # found_exit = depth_first_search(maze, player_row, player_col)
+    found_exit = True
     if found_exit:
-        print("\nAusgang gefunden! Du bewegst dich tiefer ins Labyrinth.")
-        choice = input("Möchtest du das Spiel fortsetzen (F) oder neu starten (N)? ").lower()
-        if choice == 'f':
-            generate_new_maze()  # Funktion zum Erzeugen eines neuen Labyrinths aufrufen
-        elif choice == 'n':
-            pygame.quit()
-            exit()
-        else:
-            print("Ungültige Eingabe. Das Spiel wird fortgesetzt.")
+        maze[-2][-1] = ' '  # Das Ausgangsfeld leer machen
+        display_message(exit_messages)
+        pygame.display.flip()
+        waiting_for_input = True
+        while waiting_for_input:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    exit()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        generate_new_maze()
+                        waiting_for_input = False
+
     else:
         print("\nKein Ausgang gefunden!")
 
@@ -71,27 +101,6 @@ def depth_first_search(maze, row, col):
     """
     ...
     raise NotImplementedError
-
-
-def search_exit():
-    """
-    Anstoßen der Suche nach dem Ausgang und Feedback für den Player
-    """
-    #found_exit = depth_first_search(maze, player_row, player_col)
-    found_exit = True
-    if found_exit:
-        maze[-2][-1] = ' '  # Das Ausgangsfeld leer machen
-        print("\nAusgang gefunden! Du bewegst dich tiefer ins Labyrinth.")
-        choice = input("Möchtest du das Spiel fortsetzen (F) oder neu starten (N)? ").lower()
-        if choice == 'f':
-            generate_new_maze()  # Funktion zum Erzeugen eines neuen Labyrinths aufrufen
-        elif choice == 'n':
-            pygame.quit()
-            exit()
-        else:
-            print("Ungültige Eingabe. Das Spiel wird fortgesetzt.")
-    else:
-        print("\nKein Ausgang gefunden!")
 
 
 # Pygame initialisieren
