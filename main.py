@@ -15,6 +15,7 @@ Step 6: Pro Level kann sich das Monster ein Feld weiterbewegen
 import random
 import pygame
 import time
+from enum import Enum
 
 # Fensterdimensionen
 SCREEN_WIDTH, SCREEN_HEIGHT = 1000, 800
@@ -31,6 +32,8 @@ BLUE = (0, 0, 255)
 dragging = False
 drag_start = None
 
+# Initialisiere den Zähler für die Tiefe
+depth_counter = 0
 
 # Funktion zum Generieren des Labyrinths
 def generate_maze(maze_width, maze_height):
@@ -50,26 +53,12 @@ def generate_new_maze():
     player_row, player_col = 1, 0
 
 
-def game_over():
-    screen.fill(BLACK)
-    #font = pygame.font.Font(None, 72)
-    #text_surface = font.render("Game Over", True, RED)
-    #text_rect = text_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
-    #screen.blit(text_surface, text_rect.topleft)
-    display_message(game_over_messages, RED)
-    pygame.display.flip()
-    waiting_for_input = True
-    while waiting_for_input:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                exit()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    generate_new_maze()
-                    waiting_for_input = False
-    #pygame.time.delay(2000)  # Warte für 2 Sekunden, damit der Spieler das "Game Over" sehen kann
-    #generate_new_maze()  # Generiere ein neues Labyrinth, um das Spiel fortzusetzen
+# Funktion zum Anzeigen des Zählers über dem Labyrinth
+def display_depth_counter(counter):
+    font = pygame.font.Font(None, 30)
+    text_surface = font.render(f"Tiefe: {counter}", True, WHITE)
+    text_rect = text_surface.get_rect(midtop=(SCREEN_WIDTH // 2, 10))
+    screen.blit(text_surface, text_rect)
 
 # Hinzufügen eines Monsters in der Mitte des Labyrinths
 def draw_monster():
@@ -105,29 +94,53 @@ game_over_messages = [
 ]
 
 
-def search_exit():
-    """
-    Anstoßen der Suche nach dem Ausgang und Feedback für den Player
-    """
-    # found_exit = depth_first_search(maze, player_row, player_col)
-    found_exit = True
-    if found_exit:
-        maze[-2][-1] = ' '  # Das Ausgangsfeld leer machen
-        display_message(exit_messages, WHITE)
-        pygame.display.flip()
-        waiting_for_input = True
-        while waiting_for_input:
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-                    exit()
-                elif event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_SPACE:
-                        generate_new_maze()
-                        waiting_for_input = False
+class Event(Enum):
+    FOUNDEXIT = 1
+    GAMEOVER = 2
 
-    else:
-        print("\nKein Ausgang gefunden!")
+
+def trigger_event(event_type):
+    if event_type == Event.FOUNDEXIT:
+        exit_event()
+    if event_type == Event.GAMEOVER:
+        game_over_event()
+
+
+def game_over_event():
+    global depth_counter  # Zugriff auf die globale Variable
+    screen.fill(BLACK)
+    depth_counter = 0  # Zähler zurücksetzen
+    display_message(game_over_messages, RED)
+    pygame.display.flip()
+    waiting_for_input = True
+    while waiting_for_input:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    generate_new_maze()
+                    waiting_for_input = False
+
+
+def exit_event():
+    global depth_counter  # Zugriff auf die globale Variable
+    maze[-2][-1] = ' '  # Das Ausgangsfeld leer machen
+    display_message(exit_messages, WHITE)
+    depth_counter += 1  # Zähler erhöhen
+    display_depth_counter(depth_counter)  # Zähler anzeigen
+    pygame.display.flip()
+    waiting_for_input = True
+    while waiting_for_input:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    generate_new_maze()
+                    waiting_for_input = False
 
 
 # Funktion für die Tiefensuche
@@ -194,10 +207,10 @@ while True:
             elif event.key == pygame.K_d and maze[player_row][player_col + 1] in [' ', 'A']:
                 player_col += 1
             if maze[player_row][player_col] == 'A':
-                search_exit()
+                trigger_event(Event.FOUNDEXIT)
 
         if player_row == monster_row and player_col == monster_col:
-            game_over()
+            trigger_event(Event.GAMEOVER)
 
     screen.fill(BLACK)  # Lösche den vorherigen Frame
 
@@ -217,6 +230,9 @@ while True:
 
     # Zeichne die bewegliche Person mit den verschobenen Positionen
     pygame.draw.rect(screen, YELLOW, (x_offset + player_col * 40, y_offset + player_row * 40, 40, 40))
+
+    # Zeige den Zähler über dem Labyrinth an
+    display_depth_counter(depth_counter)
 
     # Einfügen des Monsters
     draw_monster()
