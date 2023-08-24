@@ -27,6 +27,7 @@ GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
 BLUE = (0, 0, 255)
+SHORTEST_PATH_COLOUR = (0, 255, 0, 50)
 
 # Pygame Schleife für Bewegung und weitere Logik
 dragging = False
@@ -40,6 +41,10 @@ player_row, player_col = 0, 0
 # Initialisiere die Position des Monsters in der Mitte des Labyrinths
 monster_row = 0
 monster_col = 0
+
+# Exit Position
+exit_row = 0
+exit_col = 0
 
 
 # Funktion zum Generieren des Labyrinths
@@ -62,6 +67,9 @@ def generate_maze(maze_width, maze_height):
     wall_x, wall_y = generate_maze_path(maze, maze_height, maze_width, start_x, start_y, True)
 
     maze[wall_x][wall_y] = 'A'
+    global exit_col, exit_row
+    exit_row = wall_x
+    exit_col = wall_y
 
     # Weitere Pfade generieren
     generate_maze_path(maze, maze_height, maze_width, random.randint(0, maze_height - 1),
@@ -215,13 +223,34 @@ def exit_event():
                     waiting_for_input = False
 
 
-# Funktion für die Tiefensuche
-def depth_first_search(maze, row, col):
-    """
-    Tiefensuche zum Finden des Ausgangs
-    """
-    ...
-    raise NotImplementedError
+# Funktion für die Breitensuche
+def breadth_first_search(maze, start_row, start_col, target_row, target_col):
+    queue = [(start_row, start_col, [])]
+    visited = set()
+
+    while queue:
+        current_row, current_col, path = queue.pop(0)
+        if (current_row, current_col) in visited:
+            continue
+        visited.add((current_row, current_col))
+
+        if current_row == target_row and current_col == target_col:
+            return path
+
+        neighbors = [
+            (current_row - 1, current_col),
+            (current_row + 1, current_col),
+            (current_row, current_col - 1),
+            (current_row, current_col + 1)
+        ]
+
+        for neighbor_row, neighbor_col in neighbors:
+            if 0 <= neighbor_row < maze_height and 0 <= neighbor_col < maze_width:
+                cell = maze[neighbor_row][neighbor_col]
+                if cell in [' ', 'A']:
+                    queue.append((neighbor_row, neighbor_col, path + [(current_row, current_col)]))
+
+    return path
 
 
 # Pygame initialisieren
@@ -286,6 +315,9 @@ while True:
         if player_row == monster_row and player_col == monster_col:
             trigger_event(Event.GAMEOVER)
 
+    # Breitensuche durchführen
+    path_to_exit = breadth_first_search(maze, player_row, player_col, exit_row, exit_col)
+
     screen.fill(BLACK)  # Lösche den vorherigen Frame
 
     # Zeichne das Labyrinth
@@ -310,5 +342,15 @@ while True:
 
     # Einfügen des Monsters
     draw_monster()
+
+    # Erstelle ein Surface für den Pfad-Overlay
+    path_overlay = pygame.Surface((visual_width, visual_height), pygame.SRCALPHA)
+    if path_to_exit:
+        for path_row, path_col in path_to_exit:
+            if (path_row, path_col) != (player_row, player_col):
+                pygame.draw.rect(path_overlay, SHORTEST_PATH_COLOUR, (path_col * 40, path_row * 40, 40, 40))
+
+    # Blitte das Pfad-Overlay auf den Bildschirm
+    screen.blit(path_overlay, (x_offset, y_offset))
 
     pygame.display.flip()
