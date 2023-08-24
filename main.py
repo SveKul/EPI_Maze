@@ -82,9 +82,6 @@ def generate_maze(maze_width, maze_height):
     generate_maze_path(maze, maze_height, maze_width, random.randint(0, maze_height - 1),
                        random.randint(0, maze_width - 1), False)
 
-
-
-
     return maze
 
 
@@ -124,7 +121,6 @@ def generate_maze_path(maze, maze_width, maze_height, start_x, start_y, place_mo
 
     # Rückgabe des Ende des Pfades (Position des Ausgangs)
     return wall_x, wall_y
-
 
 
 # Funktion zum Anzeigen des Zählers über dem Labyrinth
@@ -171,14 +167,14 @@ game_over_messages = [
 
 
 class Event(Enum):
-    FOUNDEXIT = 1
-    GAMEOVER = 2
+    FOUND_EXIT = 1
+    GAME_OVER = 2
 
 
 def trigger_event(event_type):
-    if event_type == Event.FOUNDEXIT:
+    if event_type == Event.FOUND_EXIT:
         exit_event()
-    if event_type == Event.GAMEOVER:
+    if event_type == Event.GAME_OVER:
         game_over_event()
 
 
@@ -209,18 +205,18 @@ def exit_event():
     pygame.display.flip()
     waiting_for_input = True
     while waiting_for_input:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+        for game_event in pygame.event.get():
+            if game_event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
+            elif game_event.type == pygame.KEYDOWN:
+                if game_event.key == pygame.K_SPACE:
                     generate_maze(maze_width, maze_height)
                     waiting_for_input = False
 
 
 # Funktion für die Breitensuche
-def breadth_first_search(maze, start_row, start_col, target_row, target_col):
+def breadth_first_search(start_row, start_col, target_row, target_col):
     queue = [(start_row, start_col, [])]
     visited = set()
 
@@ -314,13 +310,13 @@ while True:
                 player_col += 1
 
             if maze[player_row][player_col] == 'A':
-                trigger_event(Event.FOUNDEXIT)
+                trigger_event(Event.FOUND_EXIT)
 
             if player_row == monster_row and player_col == monster_col:
-                trigger_event(Event.GAMEOVER)
+                trigger_event(Event.GAME_OVER)
 
     # Breitensuche durchführen
-    path_to_exit = breadth_first_search(maze, player_row, player_col, exit_row, exit_col)
+    path_to_exit = breadth_first_search(player_row, player_col, exit_row, exit_col)
 
     screen.fill(BLACK)  # Lösche den vorherigen Frame
 
