@@ -296,24 +296,32 @@ while True:
 
         # Bewegung der Person mit den WASD-Tasten
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_w and player_row - 1 >= 0 and maze[player_row - 1][player_col] in [' ', 'A', 'E']:
+
+            if event.key == pygame.K_w \
+                    and player_row - 1 >= 0 \
+                    and maze[player_row - 1][player_col] in [' ', 'A', 'E']:
                 player_row -= 1
-            elif event.key == pygame.K_s and player_row + 1 < maze_height and maze[player_row + 1][player_col] in [' ',
-                                                                                                                   'A',
-                                                                                                                   'E']:
+
+            elif event.key == pygame.K_s \
+                    and player_row + 1 < maze_height \
+                    and maze[player_row + 1][player_col] in [' ', 'A', 'E']:
                 player_row += 1
-            elif event.key == pygame.K_a and player_col - 1 >= 0 and maze[player_row][player_col - 1] in [' ', 'A',
-                                                                                                          'E']:
+
+            elif event.key == pygame.K_a \
+                    and player_col - 1 >= 0 \
+                    and maze[player_row][player_col - 1] in [' ', 'A', 'E']:
                 player_col -= 1
-            elif event.key == pygame.K_d and player_col + 1 < maze_width and maze[player_row][player_col + 1] in [' ',
-                                                                                                                  'A',
-                                                                                                                  'E']:
+
+            elif event.key == pygame.K_d \
+                    and player_col + 1 < maze_width \
+                    and maze[player_row][player_col + 1] in [' ', 'A', 'E']:
                 player_col += 1
+
             if maze[player_row][player_col] == 'A':
                 trigger_event(Event.FOUNDEXIT)
 
-        if player_row == monster_row and player_col == monster_col:
-            trigger_event(Event.GAMEOVER)
+            if player_row == monster_row and player_col == monster_col:
+                trigger_event(Event.GAMEOVER)
 
     # Breitensuche durchführen
     path_to_exit = breadth_first_search(maze, player_row, player_col, exit_row, exit_col)
