@@ -17,7 +17,7 @@ import pygame
 import time
 
 # Fensterdimensionen
-SCREEN_WIDTH, SCREEN_HEIGHT = 800, 600
+SCREEN_WIDTH, SCREEN_HEIGHT = 1000, 800
 
 # Farben definieren
 BLACK = (0, 0, 0)
@@ -28,10 +28,10 @@ YELLOW = (255, 255, 0)
 
 
 # Funktion zum Generieren des Labyrinths
-def generate_maze(width, height):
-    maze = [['#' for _ in range(width)] for _ in range(height)]
-    for row in range(1, height - 1):
-        for col in range(1, width - 1):
+def generate_maze(maze_width, maze_height):
+    maze = [['#' for _ in range(maze_width)] for _ in range(maze_height)]
+    for row in range(1, maze_height - 1):
+        for col in range(1, maze_width - 1):
             if random.random() < 0.9:
                 maze[row][col] = ' '
     return maze
@@ -116,6 +116,12 @@ maze[1][0] = 'E'
 maze[-2][-1] = 'A'
 player_row, player_col = 1, 0
 
+# Berechne den Abstand, um das Labyrinth in der Mitte anzuzeigen
+maze_width = width * 40  # Breite des Labyrinths in Pixeln
+maze_height = height * 40  # Höhe des Labyrinths in Pixeln
+x_offset = (SCREEN_WIDTH - maze_width) // 2
+y_offset = (SCREEN_HEIGHT - maze_height) // 2
+
 # Pygame Schleife für Bewegung und weitere Logik
 while True:
     for event in pygame.event.get():
@@ -149,9 +155,10 @@ while True:
             elif maze[row][col] == 'A':
                 color = RED
 
-            pygame.draw.rect(screen, color, (col * 40, row * 40, 40, 40))
+            # Verwende die berechneten Offset-Werte, um das Labyrinth zu zentrieren
+            pygame.draw.rect(screen, color, (x_offset + col * 40, y_offset + row * 40, 40, 40))
 
-    # Zeichne die bewegliche Person
-    pygame.draw.rect(screen, YELLOW, (player_col * 40, player_row * 40, 40, 40))
+    # Zeichne die bewegliche Person mit den verschobenen Positionen
+    pygame.draw.rect(screen, YELLOW, (x_offset + player_col * 40, y_offset + player_row * 40, 40, 40))
 
     pygame.display.flip()
