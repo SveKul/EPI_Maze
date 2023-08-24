@@ -26,6 +26,9 @@ GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
 
+# Pygame Schleife für Bewegung und weitere Logik
+dragging = False
+drag_start = None
 
 # Funktion zum Generieren des Labyrinths
 def generate_maze(maze_width, maze_height):
@@ -128,6 +131,21 @@ while True:
         if event.type == pygame.QUIT:
             pygame.quit()
             exit()
+
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 3:  # Rechte Maustaste gedrückt
+            dragging = True
+            drag_start = pygame.mouse.get_pos()
+        elif event.type == pygame.MOUSEBUTTONUP and event.button == 3:  # Rechte Maustaste losgelassen
+            dragging = False
+
+        if dragging:
+            # Berechne die Verschiebung
+            mouse_x, mouse_y = pygame.mouse.get_pos()
+            dx = mouse_x - drag_start[0]
+            dy = mouse_y - drag_start[1]
+            x_offset += dx
+            y_offset += dy
+            drag_start = (mouse_x, mouse_y)
 
         # Bewegung der Person mit den WASD-Tasten
         if event.type == pygame.KEYDOWN:
