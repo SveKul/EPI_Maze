@@ -46,11 +46,12 @@ def display_message(messages):
     line_spacing = font.get_linesize()
     text_position = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
 
-    y = text_position[1]
     for message in messages:
         text_surface = font.render(message, True, text_color)
-        screen.blit(text_surface, (text_position[0], y))
-        y += line_spacing
+        text_rect = text_surface.get_rect(center=text_position)  # Erhalte das Rechteck der Textfläche
+        screen.blit(text_surface, text_rect.topleft)  # Blit Text an die richtige Position
+        text_position = (text_position[0], text_position[1] + line_spacing)  # Aktualisiere die Y-Position
+
     pygame.display.flip()
 
 
