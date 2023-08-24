@@ -25,10 +25,12 @@ WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
+BLUE = (0, 0, 255)
 
 # Pygame Schleife für Bewegung und weitere Logik
 dragging = False
 drag_start = None
+
 
 # Funktion zum Generieren des Labyrinths
 def generate_maze(maze_width, maze_height):
@@ -40,12 +42,45 @@ def generate_maze(maze_width, maze_height):
     return maze
 
 
+def generate_new_maze():
+    global maze, player_row, player_col
+    maze = generate_maze(width, height)
+    maze[1][0] = 'E'
+    maze[-2][-1] = 'A'
+    player_row, player_col = 1, 0
+
+
+def game_over():
+    screen.fill(BLACK)
+    #font = pygame.font.Font(None, 72)
+    #text_surface = font.render("Game Over", True, RED)
+    #text_rect = text_surface.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+    #screen.blit(text_surface, text_rect.topleft)
+    display_message(game_over_messages, RED)
+    pygame.display.flip()
+    waiting_for_input = True
+    while waiting_for_input:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    generate_new_maze()
+                    waiting_for_input = False
+    #pygame.time.delay(2000)  # Warte für 2 Sekunden, damit der Spieler das "Game Over" sehen kann
+    #generate_new_maze()  # Generiere ein neues Labyrinth, um das Spiel fortzusetzen
+
+# Hinzufügen eines Monsters in der Mitte des Labyrinths
+def draw_monster():
+    monster_color = RED
+    pygame.draw.rect(screen, monster_color, (x_offset + monster_col * 40, y_offset + monster_row * 40, 40, 40))
+
 # Funktion zum Anzeigen von Text im Spiel
-def display_message(messages):
+def display_message(messages, text_color):
     screen.fill(BLACK)  # Lösche den vorherigen Frame
 
-    font = pygame.font.Font(None, 36)
-    text_color = (255, 255, 255)
+    font = pygame.font.Font(None, 50)
     line_spacing = font.get_linesize()
     text_position = (SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2)
 
@@ -64,6 +99,11 @@ exit_messages = [
     "Zum Fortsetzen drücke bitte die Leertaste."
 ]
 
+game_over_messages = [
+    "Du wurdest erwischt!",
+    "Zum Neustarten drücke bitte die Leertaste."
+]
+
 
 def search_exit():
     """
@@ -73,7 +113,7 @@ def search_exit():
     found_exit = True
     if found_exit:
         maze[-2][-1] = ' '  # Das Ausgangsfeld leer machen
-        display_message(exit_messages)
+        display_message(exit_messages, WHITE)
         pygame.display.flip()
         waiting_for_input = True
         while waiting_for_input:
@@ -88,14 +128,6 @@ def search_exit():
 
     else:
         print("\nKein Ausgang gefunden!")
-
-
-def generate_new_maze():
-    global maze, player_row, player_col
-    maze = generate_maze(width, height)
-    maze[1][0] = 'E'
-    maze[-2][-1] = 'A'
-    player_row, player_col = 1, 0
 
 
 # Funktion für die Tiefensuche
@@ -113,11 +145,15 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Maze Visualization")
 
 # Generiere das Labyrinth
-width, height = 15, 10
+width, height = 20, 15
 maze = generate_maze(width, height)
 maze[1][0] = 'E'
 maze[-2][-1] = 'A'
 player_row, player_col = 1, 0
+
+# Initialisiere die Position des Monsters in der Mitte des Labyrinths
+monster_row = len(maze) // 2
+monster_col = len(maze[0]) // 2
 
 # Berechne den Abstand, um das Labyrinth in der Mitte anzuzeigen
 maze_width = width * 40  # Breite des Labyrinths in Pixeln
@@ -160,6 +196,9 @@ while True:
             if maze[player_row][player_col] == 'A':
                 search_exit()
 
+        if player_row == monster_row and player_col == monster_col:
+            game_over()
+
     screen.fill(BLACK)  # Lösche den vorherigen Frame
 
     # Zeichne das Labyrinth
@@ -171,12 +210,15 @@ while True:
             elif maze[row][col] == 'E':
                 color = GREEN
             elif maze[row][col] == 'A':
-                color = RED
+                color = BLUE
 
             # Verwende die berechneten Offset-Werte, um das Labyrinth zu zentrieren
             pygame.draw.rect(screen, color, (x_offset + col * 40, y_offset + row * 40, 40, 40))
 
     # Zeichne die bewegliche Person mit den verschobenen Positionen
     pygame.draw.rect(screen, YELLOW, (x_offset + player_col * 40, y_offset + player_row * 40, 40, 40))
+
+    # Einfügen des Monsters
+    draw_monster()
 
     pygame.display.flip()
