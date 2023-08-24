@@ -118,17 +118,9 @@ def generate_maze_path(maze, maze_width, maze_height, start_x, start_y, place_mo
                 monster_row = middle_position[0]
                 monster_col = middle_position[1]
 
-
     # Rückgabe des Ende des Pfades (Position des Ausgangs)
     return wall_x, wall_y
 
-
-def generate_new_maze():
-    global maze, player_row, player_col
-    maze = generate_maze(maze_width, maze_height)
-    maze[1][0] = 'E'
-    maze[-2][-1] = 'A'
-    player_row, player_col = 1, 0
 
 
 # Funktion zum Anzeigen des Zählers über dem Labyrinth
