@@ -40,22 +40,34 @@ player_row, player_col = 0, 0
 
 # Funktion zum Generieren des Labyrinths
 def generate_maze(maze_width, maze_height):
+    #Maze mit # befüllen # = Wände
     maze = [['#' for _ in range(maze_width)] for _ in range(maze_height)]
 
+    # Random Starting Position
     start_x = random.randint(0, maze_height - 1)
     start_y = random.randint(0, maze_width - 1)
 
-    start_x = max(0, min(start_x, maze_height - 1))
-    start_y = max(0, min(start_y, maze_width - 1))
-
+    # Player Start Position
     maze[start_x][start_y] = 'E'
+
+    # Tracking der Player Position setzen (Es soll nicht nach jeder Bewegung das ganze Array durchsucht werden
     global player_row, player_col
     player_row, player_col = start_x, start_y
 
-    generate_maze_path(maze, maze_height, maze_width, start_x, start_y)
-    #generate_maze_path(maze, visual_height, visual_width, random.randint(0, visual_height - 1), random.randint(0, visual_width - 1))
+    # Pfad von der Startposition zum Ausgang generieren
+    wall_x, wall_y = generate_maze_path(maze, maze_height, maze_width, start_x, start_y)
 
-    #Anlegen von weiteren Pfaden
+    maze[wall_x][wall_y] = 'A'
+
+    # Weitere Pfade generieren
+    generate_maze_path(maze, maze_height, maze_width, random.randint(0, maze_height - 1),
+                       random.randint(0, maze_width - 1))
+    generate_maze_path(maze, maze_height, maze_width, random.randint(0, maze_height - 1),
+                       random.randint(0, maze_width - 1))
+    generate_maze_path(maze, maze_height, maze_width, random.randint(0, maze_height - 1),
+                       random.randint(0, maze_width - 1))
+    generate_maze_path(maze, maze_height, maze_width, random.randint(0, maze_height - 1),
+                       random.randint(0, maze_width - 1))
 
     return maze
 
@@ -84,14 +96,16 @@ def generate_maze_path(maze, maze_width, maze_height, start_x, start_y):
                 maze[wall_x + (adj_x - wall_x) // 2][wall_y + (adj_y - wall_y) // 2] = ' '
                 walls.append((adj_x, adj_y))
                 break
+    #Rückgabe des Ende des Pfades (Position des Ausgangs)
+    return wall_x, wall_y
 
-        if not walls:
-            maze[wall_x][wall_y] = 'A'
+        #if not walls:
+           # maze[wall_x][wall_y] = 'A'
 
 
 def generate_new_maze():
     global maze, player_row, player_col
-    maze = generate_maze(width, height)
+    maze = generate_maze(maze_width, maze_height)
     maze[1][0] = 'E'
     maze[-2][-1] = 'A'
     player_row, player_col = 1, 0
@@ -166,7 +180,7 @@ def game_over_event():
                 exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    generate_maze(width, height)
+                    generate_maze(maze_width, maze_height)
                     waiting_for_input = False
 
 
@@ -185,7 +199,7 @@ def exit_event():
                 exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    generate_maze(width, height)
+                    generate_maze(maze_width, maze_height)
                     waiting_for_input = False
 
 
@@ -204,8 +218,8 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Maze Visualization")
 
 # Generiere das Labyrinth
-width, height = 20, 15
-maze = generate_maze(width, height)
+maze_width, maze_height = 20, 15
+maze = generate_maze(maze_width, maze_height)
 # maze[1][0] = 'E'
 # maze[-2][-1] = 'A'
 #player_row, player_col = 1, 0
@@ -215,8 +229,8 @@ monster_row = len(maze) // 2
 monster_col = len(maze[0]) // 2
 
 # Berechne den Abstand, um das Labyrinth in der Mitte anzuzeigen
-visual_width = width * 40  # Breite des Labyrinths in Pixeln
-visual_height = height * 40  # Höhe des Labyrinths in Pixeln
+visual_width = maze_width * 40  # Breite des Labyrinths in Pixeln
+visual_height = maze_height * 40  # Höhe des Labyrinths in Pixeln
 x_offset = (SCREEN_WIDTH - visual_width) // 2
 y_offset = (SCREEN_HEIGHT - visual_height) // 2
 
@@ -246,11 +260,11 @@ while True:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_w and player_row - 1 >= 0 and maze[player_row - 1][player_col] in [' ', 'A', 'E']:
                 player_row -= 1
-            elif event.key == pygame.K_s and player_row + 1 < height and maze[player_row + 1][player_col] in [' ','A', 'E']:
+            elif event.key == pygame.K_s and player_row + 1 < maze_height and maze[player_row + 1][player_col] in [' ', 'A', 'E']:
                 player_row += 1
             elif event.key == pygame.K_a and player_col - 1 >= 0 and maze[player_row][player_col - 1] in [' ', 'A', 'E']:
                 player_col -= 1
-            elif event.key == pygame.K_d and player_col + 1 < width and maze[player_row][player_col + 1] in [' ','A', 'E']:
+            elif event.key == pygame.K_d and player_col + 1 < maze_width and maze[player_row][player_col + 1] in [' ', 'A', 'E']:
                 player_col += 1
             if maze[player_row][player_col] == 'A':
                 trigger_event(Event.FOUNDEXIT)
@@ -261,8 +275,8 @@ while True:
     screen.fill(BLACK)  # Lösche den vorherigen Frame
 
     # Zeichne das Labyrinth
-    for row in range(height):
-        for col in range(width):
+    for row in range(maze_height):
+        for col in range(maze_width):
             color = BLACK
             if maze[row][col] == ' ':
                 color = WHITE
