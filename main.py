@@ -33,7 +33,7 @@ def search_exit():
     """
     Anstoßen der Suche nach dem Ausgang und Feedback für den Player
     """
-    found_exit = depth_first_search(maze, person_row, person_col)
+    found_exit = depth_first_search(maze, player_row, player_col)
     if found_exit:
         print("\nAusgang gefunden!")
     else:
@@ -49,7 +49,7 @@ width, height = 15, 10
 maze = generate_maze(width, height)
 maze[1][0] = 'E'
 maze[-2][-1] = 'A'
-person_row, person_col = 1, 0
+player_row, player_col = 1, 0
 
 # Pygame Schleife für Bewegung und weitere Logik
 while True:
@@ -60,14 +60,14 @@ while True:
 
         # Bewegung der Person mit den WASD-Tasten
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_w and maze[person_row - 1][person_col] == ' ':
-                person_row -= 1
-            elif event.key == pygame.K_s and maze[person_row + 1][person_col] == ' ':
-                person_row += 1
-            elif event.key == pygame.K_a and maze[person_row][person_col - 1] == ' ':
-                person_col -= 1
-            elif event.key == pygame.K_d and maze[person_row][person_col + 1] == ' ':
-                person_col += 1
+            if event.key == pygame.K_w and maze[player_row - 1][player_col] == ' ':
+                player_row -= 1
+            elif event.key == pygame.K_s and maze[player_row + 1][player_col] == ' ':
+                player_row += 1
+            elif event.key == pygame.K_a and maze[player_row][player_col - 1] == ' ':
+                player_col -= 1
+            elif event.key == pygame.K_d and maze[player_row][player_col + 1] == ' ':
+                player_col += 1
 
     screen.fill(BLACK)  # Lösche den vorherigen Frame
 
@@ -85,7 +85,7 @@ while True:
             pygame.draw.rect(screen, color, (col * 40, row * 40, 40, 40))
 
     # Zeichne die bewegliche Person
-    pygame.draw.rect(screen, YELLOW, (person_col * 40, person_row * 40, 40, 40))
+    pygame.draw.rect(screen, YELLOW, (player_col * 40, player_row * 40, 40, 40))
 
     pygame.display.flip()
 
