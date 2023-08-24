@@ -40,7 +40,7 @@ player_row, player_col = 0, 0
 
 # Funktion zum Generieren des Labyrinths
 def generate_maze(maze_width, maze_height):
-    #Maze mit # befüllen # = Wände
+    # Maze mit # befüllen # = Wände
     maze = [['#' for _ in range(maze_width)] for _ in range(maze_height)]
 
     # Random Starting Position
@@ -74,6 +74,7 @@ def generate_maze(maze_width, maze_height):
 
 def generate_maze_path(maze, maze_width, maze_height, start_x, start_y):
     walls = [(start_x, start_y)]
+    wall_x, wall_y = 0, 0
     # Anlegen des Pfades zum Ausgang
     while walls:
         wall_x, wall_y = walls.pop(random.randint(0, len(walls) - 1))
@@ -96,11 +97,9 @@ def generate_maze_path(maze, maze_width, maze_height, start_x, start_y):
                 maze[wall_x + (adj_x - wall_x) // 2][wall_y + (adj_y - wall_y) // 2] = ' '
                 walls.append((adj_x, adj_y))
                 break
-    #Rückgabe des Ende des Pfades (Position des Ausgangs)
-    return wall_x, wall_y
 
-        #if not walls:
-           # maze[wall_x][wall_y] = 'A'
+    # Rückgabe des Ende des Pfades (Position des Ausgangs)
+    return wall_x, wall_y
 
 
 def generate_new_maze():
@@ -222,7 +221,7 @@ maze_width, maze_height = 20, 15
 maze = generate_maze(maze_width, maze_height)
 # maze[1][0] = 'E'
 # maze[-2][-1] = 'A'
-#player_row, player_col = 1, 0
+# player_row, player_col = 1, 0
 
 # Initialisiere die Position des Monsters in der Mitte des Labyrinths
 monster_row = len(maze) // 2
@@ -260,11 +259,16 @@ while True:
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_w and player_row - 1 >= 0 and maze[player_row - 1][player_col] in [' ', 'A', 'E']:
                 player_row -= 1
-            elif event.key == pygame.K_s and player_row + 1 < maze_height and maze[player_row + 1][player_col] in [' ', 'A', 'E']:
+            elif event.key == pygame.K_s and player_row + 1 < maze_height and maze[player_row + 1][player_col] in [' ',
+                                                                                                                   'A',
+                                                                                                                   'E']:
                 player_row += 1
-            elif event.key == pygame.K_a and player_col - 1 >= 0 and maze[player_row][player_col - 1] in [' ', 'A', 'E']:
+            elif event.key == pygame.K_a and player_col - 1 >= 0 and maze[player_row][player_col - 1] in [' ', 'A',
+                                                                                                          'E']:
                 player_col -= 1
-            elif event.key == pygame.K_d and player_col + 1 < maze_width and maze[player_row][player_col + 1] in [' ', 'A', 'E']:
+            elif event.key == pygame.K_d and player_col + 1 < maze_width and maze[player_row][player_col + 1] in [' ',
+                                                                                                                  'A',
+                                                                                                                  'E']:
                 player_col += 1
             if maze[player_row][player_col] == 'A':
                 trigger_event(Event.FOUNDEXIT)
