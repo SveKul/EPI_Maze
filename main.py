@@ -37,6 +37,10 @@ depth_counter = 0
 
 player_row, player_col = 0, 0
 
+# Initialisiere die Position des Monsters in der Mitte des Labyrinths
+monster_row = 0
+monster_col = 0
+
 
 # Funktion zum Generieren des Labyrinths
 def generate_maze(maze_width, maze_height):
@@ -55,24 +59,24 @@ def generate_maze(maze_width, maze_height):
     player_row, player_col = start_x, start_y
 
     # Pfad von der Startposition zum Ausgang generieren
-    wall_x, wall_y = generate_maze_path(maze, maze_height, maze_width, start_x, start_y)
+    wall_x, wall_y = generate_maze_path(maze, maze_height, maze_width, start_x, start_y, True)
 
     maze[wall_x][wall_y] = 'A'
 
     # Weitere Pfade generieren
     generate_maze_path(maze, maze_height, maze_width, random.randint(0, maze_height - 1),
-                       random.randint(0, maze_width - 1))
+                       random.randint(0, maze_width - 1), False)
     generate_maze_path(maze, maze_height, maze_width, random.randint(0, maze_height - 1),
-                       random.randint(0, maze_width - 1))
+                       random.randint(0, maze_width - 1), False)
     generate_maze_path(maze, maze_height, maze_width, random.randint(0, maze_height - 1),
-                       random.randint(0, maze_width - 1))
+                       random.randint(0, maze_width - 1), False)
     generate_maze_path(maze, maze_height, maze_width, random.randint(0, maze_height - 1),
-                       random.randint(0, maze_width - 1))
+                       random.randint(0, maze_width - 1), False)
 
     return maze
 
 
-def generate_maze_path(maze, maze_width, maze_height, start_x, start_y):
+def generate_maze_path(maze, maze_width, maze_height, start_x, start_y, place_monster):
     walls = [(start_x, start_y)]
     wall_x, wall_y = 0, 0
     # Anlegen des Pfades zum Ausgang
@@ -97,6 +101,15 @@ def generate_maze_path(maze, maze_width, maze_height, start_x, start_y):
                 maze[wall_x + (adj_x - wall_x) // 2][wall_y + (adj_y - wall_y) // 2] = ' '
                 walls.append((adj_x, adj_y))
                 break
+
+            # Monster in der Mitte des Pfades zwischen Ein- und Ausgang positionieren
+            if place_monster:
+                half_length_of_path = len(adjacent_cells) // 2
+                middle_position = adjacent_cells[half_length_of_path]
+                global monster_row, monster_col
+                monster_row = middle_position[0]
+                monster_col = middle_position[1]
+
 
     # Rückgabe des Ende des Pfades (Position des Ausgangs)
     return wall_x, wall_y
@@ -223,9 +236,6 @@ maze = generate_maze(maze_width, maze_height)
 # maze[-2][-1] = 'A'
 # player_row, player_col = 1, 0
 
-# Initialisiere die Position des Monsters in der Mitte des Labyrinths
-monster_row = len(maze) // 2
-monster_col = len(maze[0]) // 2
 
 # Berechne den Abstand, um das Labyrinth in der Mitte anzuzeigen
 visual_width = maze_width * 40  # Breite des Labyrinths in Pixeln
