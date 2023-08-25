@@ -77,7 +77,7 @@ def generate_maze(maze_width, maze_height, number_of_generated_mate_paths):
         generate_maze_path(maze, maze_height, maze_width, random.randint(0, maze_height - 1),
                            random.randint(0, maze_width - 1), False)
 
-
+    set_screen_offset()
     return maze
 
 
@@ -241,13 +241,18 @@ def breadth_first_search(start_row, start_col, target_row, target_col):
     return path
 
 
+def set_screen_offset():
+    global x_offset, y_offset, player_col, player_row
+    x_offset = SCREEN_WIDTH // 2 - player_col * 40
+    y_offset = SCREEN_HEIGHT // 2 - player_row * 40
+
 # Pygame initialisieren
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Maze Visualization")
 
 # Generiere das Labyrinth
-maze_width, maze_height = 50, 60
+maze_width, maze_height = 50, 50
 maze = generate_maze(maze_width, maze_height, 4)
 # maze[1][0] = 'E'
 # maze[-2][-1] = 'A'
@@ -257,8 +262,10 @@ maze = generate_maze(maze_width, maze_height, 4)
 # Berechne den Abstand, um das Labyrinth in der Mitte anzuzeigen
 visual_width = maze_width * 40  # Breite des Labyrinths in Pixeln
 visual_height = maze_height * 40  # Höhe des Labyrinths in Pixeln
-x_offset = (SCREEN_WIDTH - visual_width) // 2
-y_offset = (SCREEN_HEIGHT - visual_height) // 2
+x_offset = SCREEN_WIDTH // 2 - player_col * 40
+y_offset = SCREEN_HEIGHT // 2 - player_row * 40
+
+
 
 # Pygame Schleife für Bewegung und weitere Logik
 while True:
@@ -282,7 +289,7 @@ while True:
             y_offset += dy
             drag_start = (mouse_x, mouse_y)
 
-        # Bewegung der Person mit den WASD-Tasten
+        # Bewegung des Spielers mit den WASD-Tasten
         if event.type == pygame.KEYDOWN:
 
             if event.key == pygame.K_w \
@@ -327,10 +334,10 @@ while True:
             elif maze[row][col] == 'A':
                 color = BLUE
 
-            # Verwende die berechneten Offset-Werte, um das Labyrinth zu zentrieren
+            # Verwende die berechneten Offset-Werte, um das Labyrinth zu positionieren
             pygame.draw.rect(screen, color, (x_offset + col * 40, y_offset + row * 40, 40, 40))
 
-    # Zeichne die bewegliche Person mit den verschobenen Positionen
+    # Zeichne des Spielers mit den verschobenen Positionen
     pygame.draw.rect(screen, YELLOW, (x_offset + player_col * 40, y_offset + player_row * 40, 40, 40))
 
     # Zeige den Zähler über dem Labyrinth an
