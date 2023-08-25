@@ -48,7 +48,7 @@ exit_col = 0
 
 
 # Funktion zum Generieren des Labyrinths
-def generate_maze(maze_width, maze_height):
+def generate_maze(maze_width, maze_height, number_of_generated_mate_paths):
     global maze
     # Maze mit # befüllen # = Wände
     maze = [['#' for _ in range(maze_width)] for _ in range(maze_height)]
@@ -73,14 +73,10 @@ def generate_maze(maze_width, maze_height):
     exit_col = wall_y
 
     # Weitere Pfade generieren
-    generate_maze_path(maze, maze_height, maze_width, random.randint(0, maze_height - 1),
-                       random.randint(0, maze_width - 1), False)
-    generate_maze_path(maze, maze_height, maze_width, random.randint(0, maze_height - 1),
-                       random.randint(0, maze_width - 1), False)
-    generate_maze_path(maze, maze_height, maze_width, random.randint(0, maze_height - 1),
-                       random.randint(0, maze_width - 1), False)
-    generate_maze_path(maze, maze_height, maze_width, random.randint(0, maze_height - 1),
-                       random.randint(0, maze_width - 1), False)
+    for i in range(number_of_generated_mate_paths):
+        generate_maze_path(maze, maze_height, maze_width, random.randint(0, maze_height - 1),
+                           random.randint(0, maze_width - 1), False)
+
 
     return maze
 
@@ -192,7 +188,7 @@ def game_over_event():
                 exit()
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
-                    generate_maze(maze_width, maze_height)
+                    generate_maze(maze_width, maze_height, 4)
                     waiting_for_input = False
 
 
@@ -211,7 +207,7 @@ def exit_event():
                 exit()
             elif game_event.type == pygame.KEYDOWN:
                 if game_event.key == pygame.K_SPACE:
-                    generate_maze(maze_width, maze_height)
+                    generate_maze(maze_width, maze_height, 4)
                     waiting_for_input = False
 
 
@@ -251,8 +247,8 @@ screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 pygame.display.set_caption("Maze Visualization")
 
 # Generiere das Labyrinth
-maze_width, maze_height = 20, 15
-maze = generate_maze(maze_width, maze_height)
+maze_width, maze_height = 50, 60
+maze = generate_maze(maze_width, maze_height, 4)
 # maze[1][0] = 'E'
 # maze[-2][-1] = 'A'
 # player_row, player_col = 1, 0
