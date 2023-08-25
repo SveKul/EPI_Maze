@@ -1,11 +1,11 @@
 """
 Suchstrategie vs Suchstrategie Player = Tiefensuche Monster = Breitensuche
-Step 1: Der Spieler bekommt Hilfe durch die Darstellung des kürzesten Weges basierend auf der Tiefensuche
-Step 2: Das Monster bewegt sich Random
-Step 3: Bewegt sich der Spieler hört das Monster den Spieler und führt eine Breitensuche aus und geht einen Schritt
+Step 1: Der Spieler bekommt Hilfe durch die Darstellung des kürzesten Weges basierend auf der Tiefensuche - done
+Step 2: Das Monster bewegt sich Random - done
+Step 3: Bewegt sich der Spieler hört das Monster den Spieler und führt eine Breitensuche aus und geht einen Schritt - done
 Step 4: Das Monster lernt zu sehen, ist ein grader, ununterbrochener Pfad vorhanden, schlägt das Monster den kürzesten Weg ein um den Spieler zu kriegen
-Step 5: Der Spieler kann sich verstecken so dass das Monster ihn nicht mehr sehen kann.
-Step 5: Es gibt Level
+Step 5: Der Spieler kann sich verstecken so dass das Monster ihn nicht mehr sehen und hören kann. - done
+Step 5: Es gibt Level - done
 Step 6: Pro Level kann sich das Monster ein Feld weiterbewegen
 
 
@@ -35,7 +35,7 @@ dragging = False
 drag_start = None
 
 # Initialisiere den Zähler für die Tiefe
-depth_counter = 0
+depth_counter = 1
 
 player_row, player_col = 0, 0
 
@@ -156,7 +156,12 @@ def move_monster_random(monster_speed):
 def move_monster_to_player_path(path_to_player, monster_speed):
     for i in range(monster_speed):
         if len(path_to_player) > 1:
-            next_row, next_col = path_to_player[1]  # Das vorletzte Element im Pfad ist die nächste Position
+            # Entferne das erste Element aus dem Pfad
+            path_to_player.pop(0)
+
+            # Nächste Position im Pfad
+            next_row, next_col = path_to_player[0]
+
             global monster_row, monster_col
             monster_row = next_row
             monster_col = next_col
