@@ -6,7 +6,7 @@ Step 3: Bewegt sich der Spieler hört das Monster den Spieler und führt eine Br
 Step 4: Das Monster lernt zu sehen, ist ein grader, ununterbrochener Pfad vorhanden, schlägt das Monster den kürzesten Weg ein um den Spieler zu kriegen
 Step 5: Der Spieler kann sich verstecken so dass das Monster ihn nicht mehr sehen und hören kann. - done
 Step 5: Es gibt Level - done
-Step 6: Pro Level kann sich das Monster ein Feld weiterbewegen
+Step 6: Pro Level kann sich das Monster ein Feld weiterbewegen - done
 
 
 
@@ -28,7 +28,7 @@ RED = (255, 0, 0)
 YELLOW = (255, 255, 0)
 BLUE = (0, 0, 255)
 SHORTEST_PATH_COLOUR = (0, 255, 0, 50)
-PLAYER_HIDE = (255, 255, 255, 125)
+GREY = (100, 100, 100)
 
 # Pygame Schleife für Bewegung und weitere Logik
 dragging = False
@@ -285,7 +285,7 @@ def set_screen_offset():
 # Pygame initialisieren
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
-pygame.display.set_caption("Maze Visualization")
+pygame.display.set_caption("The Lair")
 
 # Generiere das Labyrinth
 maze_width, maze_height = 25, 25
@@ -404,8 +404,13 @@ while True:
                     # Verwende die berechneten Offset-Werte, um das Labyrinth zu positionieren
                     pygame.draw.rect(screen, color, (x_offset + col * 40, y_offset + row * 40, 40, 40))
 
+            if player_hide:
+                player_color = GREY
+            else:
+                player_color = YELLOW
+
             # Zeichne des Spielers mit den verschobenen Positionen
-            pygame.draw.rect(screen, YELLOW, (x_offset + player_col * 40, y_offset + player_row * 40, 40, 40))
+            pygame.draw.rect(screen, player_color, (x_offset + player_col * 40, y_offset + player_row * 40, 40, 40))
 
             # Zeige den Zähler über dem Labyrinth an
             display_depth_counter(depth_counter)
