@@ -210,7 +210,7 @@ def trigger_event(event_type):
 def game_over_event():
     global depth_counter  # Zugriff auf die globale Variable
     screen.fill(BLACK)
-    depth_counter = 0  # Zähler zurücksetzen
+    depth_counter = 1  # Zähler zurücksetzen
     display_message(game_over_messages, RED)
     pygame.display.flip()
     waiting_for_input = True
@@ -348,7 +348,7 @@ while True:
 
             elif event.key == pygame.K_SPACE:
                 #Hide
-                move_monster_random(2)
+                move_monster_random(depth_counter)
                 player_hide = True
 
             # Nachdem der Spieler sich bewegt hat, das Monster ebenfalls bewegen
@@ -356,7 +356,7 @@ while True:
                 # Breitensuche durchführen
                 path_to_player = breadth_first_search(monster_row, monster_col, player_row, player_col)
                 if path_to_player:
-                    move_monster_to_player_path(path_to_player, 2)
+                    move_monster_to_player_path(path_to_player, depth_counter)
 
             if maze[player_row][player_col] == 'A':
                 trigger_event(Event.FOUND_EXIT)
