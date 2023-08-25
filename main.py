@@ -147,7 +147,8 @@ def move_monster_random(monster_speed):
         new_monster_col = monster_col + random_direction[1]
 
         # Überprüfen, ob die neue Position gültig ist
-        if 0 <= new_monster_row < maze_height and 0 <= new_monster_col < maze_width and maze[new_monster_row][new_monster_col] == ' ':
+        if 0 <= new_monster_row < maze_height and 0 <= new_monster_col < maze_width and maze[new_monster_row][
+            new_monster_col] == ' ':
             # Monster an die neue Position bewegen
             monster_row = new_monster_row
             monster_col = new_monster_col
@@ -165,6 +166,7 @@ def move_monster_to_player_path(path_to_player, monster_speed):
             global monster_row, monster_col
             monster_row = next_row
             monster_col = next_col
+
 
 # Funktion zum Anzeigen von Text im Spiel
 def display_message(messages, text_color):
@@ -279,6 +281,7 @@ def set_screen_offset():
     x_offset = SCREEN_WIDTH // 2 - player_col * 40
     y_offset = SCREEN_HEIGHT // 2 - player_row * 40
 
+
 # Pygame initialisieren
 pygame.init()
 screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
@@ -298,10 +301,14 @@ visual_height = maze_height * 40  # Höhe des Labyrinths in Pixeln
 x_offset = SCREEN_WIDTH // 2 - player_col * 40
 y_offset = SCREEN_HEIGHT // 2 - player_row * 40
 
-
-
 # Pygame Schleife für Bewegung und weitere Logik
 while True:
+
+    # In der Pygame-Schleife
+    clock = pygame.time.Clock()
+    key_repeat_delay = 200  # Zeit in Millisekunden
+    last_key_event_time = 0
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
@@ -323,36 +330,50 @@ while True:
             drag_start = (mouse_x, mouse_y)
 
         player_hide = False
-        # Bewegung des Spielers mit den WASD-Tasten
-        if event.type == pygame.KEYDOWN:
+        player_moved = False
+        current_time = pygame.time.get_ticks()
 
-            if event.key == pygame.K_w \
+        if current_time - last_key_event_time > key_repeat_delay:
+            # Bewegung des Spielers mit den WASD-Tasten
+            keys = pygame.key.get_pressed()
+
+            # Bewegung der Person mit den WASD-Tasten
+            if keys[pygame.K_w] \
                     and player_row - 1 >= 0 \
                     and maze[player_row - 1][player_col] in [' ', 'A', 'E']:
                 player_row -= 1
+                player_moved = True
+                last_key_event_time = current_time
 
-            elif event.key == pygame.K_s \
+            if keys[pygame.K_s] \
                     and player_row + 1 < maze_height \
                     and maze[player_row + 1][player_col] in [' ', 'A', 'E']:
                 player_row += 1
+                player_moved = True
+                last_key_event_time = current_time
 
-            elif event.key == pygame.K_a \
+            if keys[pygame.K_a] \
                     and player_col - 1 >= 0 \
                     and maze[player_row][player_col - 1] in [' ', 'A', 'E']:
                 player_col -= 1
+                player_moved = True
+                last_key_event_time = current_time
 
-            elif event.key == pygame.K_d \
+            if keys[pygame.K_d] \
                     and player_col + 1 < maze_width \
                     and maze[player_row][player_col + 1] in [' ', 'A', 'E']:
                 player_col += 1
+                player_moved = True
+                last_key_event_time = current_time
 
-            elif event.key == pygame.K_SPACE:
-                #Hide
+            if keys[pygame.K_SPACE]:
                 move_monster_random(depth_counter)
                 player_hide = True
+                player_moved = True
+                last_key_event_time = current_time
 
             # Nachdem der Spieler sich bewegt hat, das Monster ebenfalls bewegen
-            if not player_hide:
+            if not player_hide and player_moved:
                 # Breitensuche durchführen
                 path_to_player = breadth_first_search(monster_row, monster_col, player_row, player_col)
                 if path_to_player:
@@ -364,42 +385,44 @@ while True:
             if player_row == monster_row and player_col == monster_col:
                 trigger_event(Event.GAME_OVER)
 
-    # Breitensuche durchführen
-    path_to_exit = breadth_first_search(player_row, player_col, exit_row, exit_col)
+            # Breitensuche durchführen
+            path_to_exit = breadth_first_search(player_row, player_col, exit_row, exit_col)
 
-    screen.fill(BLACK)  # Lösche den vorherigen Frame
+            screen.fill(BLACK)  # Lösche den vorherigen Frame
 
-    # Zeichne das Labyrinth
-    for row in range(maze_height):
-        for col in range(maze_width):
-            color = BLACK
-            if maze[row][col] == ' ':
-                color = WHITE
-            elif maze[row][col] == 'E':
-                color = GREEN
-            elif maze[row][col] == 'A':
-                color = BLUE
+            # Zeichne das Labyrinth
+            for row in range(maze_height):
+                for col in range(maze_width):
+                    color = BLACK
+                    if maze[row][col] == ' ':
+                        color = WHITE
+                    elif maze[row][col] == 'E':
+                        color = GREEN
+                    elif maze[row][col] == 'A':
+                        color = BLUE
 
-            # Verwende die berechneten Offset-Werte, um das Labyrinth zu positionieren
-            pygame.draw.rect(screen, color, (x_offset + col * 40, y_offset + row * 40, 40, 40))
+                    # Verwende die berechneten Offset-Werte, um das Labyrinth zu positionieren
+                    pygame.draw.rect(screen, color, (x_offset + col * 40, y_offset + row * 40, 40, 40))
 
-    # Zeichne des Spielers mit den verschobenen Positionen
-    pygame.draw.rect(screen, YELLOW, (x_offset + player_col * 40, y_offset + player_row * 40, 40, 40))
+            # Zeichne des Spielers mit den verschobenen Positionen
+            pygame.draw.rect(screen, YELLOW, (x_offset + player_col * 40, y_offset + player_row * 40, 40, 40))
 
-    # Zeige den Zähler über dem Labyrinth an
-    display_depth_counter(depth_counter)
+            # Zeige den Zähler über dem Labyrinth an
+            display_depth_counter(depth_counter)
 
-    # Einfügen des Monsters
-    draw_monster()
+            # Einfügen des Monsters
+            draw_monster()
 
-    # Erstelle ein Surface für den Pfad-Overlay
-    path_overlay = pygame.Surface((visual_width, visual_height), pygame.SRCALPHA)
-    if path_to_exit:
-        for path_row, path_col in path_to_exit:
-            if (path_row, path_col) != (player_row, player_col):
-                pygame.draw.rect(path_overlay, SHORTEST_PATH_COLOUR, (path_col * 40, path_row * 40, 40, 40))
+            # Erstelle ein Surface für den Pfad-Overlay
+            path_overlay = pygame.Surface((visual_width, visual_height), pygame.SRCALPHA)
+            if path_to_exit:
+                for path_row, path_col in path_to_exit:
+                    if (path_row, path_col) != (player_row, player_col):
+                        pygame.draw.rect(path_overlay, SHORTEST_PATH_COLOUR, (path_col * 40, path_row * 40, 40, 40))
 
-    # Blitte das Pfad-Overlay auf den Bildschirm
-    screen.blit(path_overlay, (x_offset, y_offset))
+            clock.tick(60)  # Begrenze die Schleifenrate auf 60 FPS
 
-    pygame.display.flip()
+            # Blitte das Pfad-Overlay auf den Bildschirm
+            screen.blit(path_overlay, (x_offset, y_offset))
+
+            pygame.display.flip()
